@@ -1,31 +1,25 @@
-local assets = {
-	Asset("ANIM", "anim/new_elixirs.zip"),
-
-	Asset("ANIM", "anim/ghost_abigail_nightmare_build.zip"),
-}
-
 local function buff_OnTick(inst, target)
-    if target.components.health ~= nil and not target.components.health:IsDead() then
+	if target.components.health ~= nil and not target.components.health:IsDead() then
 			inst.potion_tunings.ONTICK(inst, target)
-    else
+	else
 			inst.components.debuff:Stop()
-    end
+	end
 end
 
 local function buff_DripFx(inst, target)
-    if not target.inlimbo and not target.sg:HasStateTag("busy") then
+	if not target.inlimbo and not target.sg:HasStateTag("busy") then
 			local x, y, z = target.Transform:GetWorldPosition()
 			if inst.potion_tunings.dripfx == "electrichitsparks" then
 				y = y + 1.5
 			end
 			SpawnPrefab(inst.potion_tunings.dripfx).Transform:SetPosition(x, y, z)
-    end
+	end
 end
 
 local function buff_OnTimerDone(inst, data)
-  if data.name == "decay" then
-      inst.components.debuff:Stop()
-  end
+	if data.name == "decay" then
+		inst.components.debuff:Stop()
+	end
 end
 
 local function buff_OnAttached(inst, target)
@@ -55,10 +49,10 @@ local function buff_OnAttached(inst, target)
 end
 
 local function buff_OnExtended(inst, target)
-    if (inst.components.timer:GetTimeLeft("decay") or 0) < inst.potion_tunings.DURATION then
-        inst.components.timer:StopTimer("decay")
-        inst.components.timer:StartTimer("decay", inst.potion_tunings.DURATION)
-    end
+	if (inst.components.timer:GetTimeLeft("decay") or 0) < inst.potion_tunings.DURATION then
+		inst.components.timer:StopTimer("decay")
+		inst.components.timer:StartTimer("decay", inst.potion_tunings.DURATION)
+	end
 	if inst.task ~= nil then
 		inst.task:Cancel()
 		inst.task = inst:DoPeriodicTask(inst.potion_tunings.TICK_RATE, buff_OnTick, nil, target)
@@ -66,7 +60,7 @@ local function buff_OnExtended(inst, target)
 
 	if inst.potion_tunings.fx ~= nil and not target.inlimbo then
 		local fx = SpawnPrefab(inst.potion_tunings.fx)
-	    fx.entity:SetParent(target.entity)
+		fx.entity:SetParent(target.entity)
 	end
 end
 
@@ -88,7 +82,7 @@ local function buff_OnDetached(inst, target)
 	inst:Remove()
 end
 
-local function post_init_buff_fn(inst, elixir_type, data)
+local function post_init_buff_fn(inst, _, data)
 	inst.entity:Hide()
 	inst.persists = false
 
@@ -110,7 +104,7 @@ local function post_init_buff_fn(inst, elixir_type, data)
 end
 
 -- unused from the freeze elixir
-local function freeze_other(inst, data)
+local function freeze_other(_, data)
 	local other = data.target
 	if other ~= nil then
 			if not (other.components.health ~= nil and other.components.health:IsDead()) then
@@ -169,7 +163,7 @@ local function zap_damage_fn(attacker, target, damage)
 end
 
 -- bonus damage function for low wendy sanity
-local function insane_damage_fn(attacker, target, damage)
+local function insane_damage_fn(attacker, _, damage)
 	if attacker._playerlink ~= nil and attacker._playerlink.components.sanity ~= nil then
 		local sanity_level = attacker._playerlink.components.sanity:GetPercent()
 		return damage * (1 - sanity_level)
@@ -201,9 +195,9 @@ local potion_tunings = {
 	newelixir_sanityaura = {
 		NIGHTMARE_ELIXIR = false,
 		DURATION = TUNING.TOTAL_DAY_TIME,
-		ONAPPLY = function(inst, target)
+		ONAPPLY = function(_, target)
 			target:AddComponent("sanityaura")
-	    target.components.sanityaura.aura = TUNING.ELIXIRS_PLUS.SANITYAURA.AURA
+			target.components.sanityaura.aura = TUNING.ELIXIRS_PLUS.SANITYAURA.AURA
 			if target._playerlink ~= nil then
 				target._playerlink.components.sanity:RemoveSanityAuraImmunity("ghost")
 			end
@@ -217,19 +211,19 @@ local potion_tunings = {
 		PREFABFN = function(elixir_type, data)
 			local inst = CreateEntity()
 
-	    inst.entity:AddTransform()
-	    inst.entity:AddLight()
-	    inst.entity:AddNetwork()
+			inst.entity:AddTransform()
+			inst.entity:AddLight()
+			inst.entity:AddNetwork()
 
-	    inst:AddTag("FX")
+			inst:AddTag("FX")
 
-	    inst.Light:SetIntensity(.5)
-	    inst.Light:SetRadius(TUNING.ELIXIRS_PLUS.LIGHTAURA.LIGHT_RADIUS)
-	    inst.Light:SetFalloff(1)
-	    inst.Light:Enable(true)
-	    inst.Light:SetColour(255 / 255, 160 / 255, 160 / 255)
+			inst.Light:SetIntensity(.5)
+			inst.Light:SetRadius(TUNING.ELIXIRS_PLUS.LIGHTAURA.LIGHT_RADIUS)
+			inst.Light:SetFalloff(1)
+			inst.Light:Enable(true)
+			inst.Light:SetColour(255 / 255, 160 / 255, 160 / 255)
 
-	    inst.entity:SetPristine()
+			inst.entity:SetPristine()
 
 			if not TheWorld.ismastersim then
 				return inst
@@ -237,11 +231,11 @@ local potion_tunings = {
 
 			return post_init_buff_fn(inst, elixir_type, data)
 		end,
-		ONAPPLY = function(inst, target)
-	    target:AddComponent("heater")
-	    target.components.heater.heat = TUNING.ELIXIRS_PLUS.LIGHTAURA.TEMPERATURE
+		ONAPPLY = function(_, target)
+			target:AddComponent("heater")
+			target.components.heater.heat = TUNING.ELIXIRS_PLUS.LIGHTAURA.TEMPERATURE
 		end,
-		ONDETACH = function(inst, target)
+		ONDETACH = function(_, target)
 			target:RemoveComponent("heater")
 		end,
 		fx = "ghostlyelixir_slowregen_fx",
@@ -251,10 +245,10 @@ local potion_tunings = {
 		NIGHTMARE_ELIXIR = false,
 		DURATION = TUNING.TOTAL_DAY_TIME,
 		TICK_RATE = 0.5,
-		ONTICK = function(inst, target)
+		ONTICK = function(_, target)
 			health_vex_damage_fn(target)
 		end,
-		ONDETACH = function(inst, target)
+		ONDETACH = function(_, target)
 			health_vex_damage_fn(target, true)
 		end,
 		fx = "ghostlyelixir_slowregen_fx",
@@ -263,7 +257,7 @@ local potion_tunings = {
 	newelixir_cleanse = {
 		NIGHTMARE_ELIXIR = false,
 		DURATION = 0.1,
-		ONAPPLY = function(inst, target)
+		ONAPPLY = function(_, target)
 			local healing = target.components.health:GetMaxWithPenalty() * TUNING.ELIXIRS_PLUS.CLEANSE.HEAL_MULT
 			target.components.health:DoDelta(healing)
 			if target._playerlink ~= nil then
@@ -277,12 +271,12 @@ local potion_tunings = {
 		NIGHTMARE_ELIXIR = true,
 		DURATION = TUNING.TOTAL_DAY_TIME * 0.5,
 		TICK_RATE = 0.5,
-		ONAPPLY = function(inst, target)
+		ONAPPLY = function(_, target)
 			if target.components.combat ~= nil then
 				target.components.combat.bonusdamagefn = insane_damage_fn
 			end
 		end,
-		ONDETACH = function(inst, target)
+		ONDETACH = function(_, target)
 			if target.components.combat ~= nil then
 				target.components.combat.bonusdamagefn = nil
 			end
@@ -293,10 +287,10 @@ local potion_tunings = {
 	newelixir_shadowfighter = {
 		NIGHTMARE_ELIXIR = true,
 		DURATION = TUNING.TOTAL_DAY_TIME * 0.5,
-		ONAPPLY = function(inst, target)
+		ONAPPLY = function(_, target)
 			target:AddTag("crazy")
 		end,
-		ONDETACH = function(inst, target)
+		ONDETACH = function(_, target)
 			target:RemoveTag("crazy")
 		end,
 		fx = "ghostlyelixir_slowregen_fx",
@@ -305,7 +299,7 @@ local potion_tunings = {
 	newelixir_lightning = {
 		NIGHTMARE_ELIXIR = true,
 		DURATION = TUNING.TOTAL_DAY_TIME * 0.5,
-		ONAPPLY = function(inst, target)
+		ONAPPLY = function(_, target)
 			if target.components.combat ~= nil then
 				target.components.combat.bonusdamagefn = zap_damage_fn
 			end
@@ -313,7 +307,7 @@ local potion_tunings = {
 				target.components.aura.pretickfn = try_smite_fn
 			end
 		end,
-		ONDETACH = function(inst, target)
+		ONDETACH = function(_, target)
 			if target.components.combat ~= nil then
 				target.components.combat.bonusdamagefn = nil
 			end
@@ -326,6 +320,7 @@ local potion_tunings = {
 	},
 
 	-- this one is just for copy/pasting
+	--[[
 	newelixir_unused = {
 		NIGHTMARE_ELIXIR = false,
 		DURATION = TUNING.TOTAL_DAY_TIME * 0.5,
@@ -337,15 +332,16 @@ local potion_tunings = {
 		fx = "ghostlyelixir_slowregen_fx",
 		dripfx = "ghostlyelixir_slowregen_dripfx",
 	},
+	]]
 
 	-- unused tunings from the freeze elixir
 	newelixir_freeze = {
 		NIGHTMARE_ELIXIR = true,
 		DURATION = TUNING.TOTAL_DAY_TIME * 0.5,
-		ONAPPLY = function(inst, target)
+		ONAPPLY = function(_, target)
 			target:ListenForEvent("onhitother", freeze_other)
 		end,
-		ONDETACH = function(inst, target)
+		ONDETACH = function(_, target)
 			target:RemoveEventCallback("onhitother", freeze_other)
 		end,
 		fx = "ghostlyelixir_slowregen_fx",
@@ -367,55 +363,55 @@ local function buff_fn(elixir_type, data)
 end
 
 local function elixir_fn(elixir_type, data, buff_prefab)
-  local inst = CreateEntity()
+	local inst = CreateEntity()
 
-  inst.entity:AddTransform()
-  inst.entity:AddAnimState()
+	inst.entity:AddTransform()
+	inst.entity:AddAnimState()
 	inst.entity:AddNetwork()
 
 	MakeInventoryPhysics(inst)
 
-  inst.AnimState:SetBank("new_elixirs")
-  inst.AnimState:SetBuild("new_elixirs")
+	inst.AnimState:SetBank("new_elixirs")
+	inst.AnimState:SetBuild("new_elixirs")
 	if elixir_type == "healthdamage" then
 		inst.AnimState:PlayAnimation("lightaura")
 	else
-  	inst.AnimState:PlayAnimation(elixir_type)
+		inst.AnimState:PlayAnimation(elixir_type)
 	end
 
-  inst:AddTag("ghostlyelixir")
+	inst:AddTag("ghostlyelixir")
 
-  MakeInventoryFloatable(inst)
+	MakeInventoryFloatable(inst)
 
-  inst.entity:SetPristine()
+	inst.entity:SetPristine()
 
-  if not TheWorld.ismastersim then
-    return inst
-  end
+	if not TheWorld.ismastersim then
+		return inst
+	end
 
 	inst.buff_prefab = buff_prefab
 	inst.potion_tunings = data
 
-  inst:AddComponent("inspectable")
+	inst:AddComponent("inspectable")
 
-  inst:AddComponent("inventoryitem")
+	inst:AddComponent("inventoryitem")
 	if elixir_type == "healthdamage" then
-	  inst.components.inventoryitem.imagename = "newelixir_lightaura"
-	  inst.components.inventoryitem.atlasname = "images/inventoryimages/newelixir_lightaura.xml"
+		inst.components.inventoryitem.imagename = "newelixir_lightaura"
+		inst.components.inventoryitem.atlasname = "images/inventoryimages/newelixir_lightaura.xml"
 	else
-	  inst.components.inventoryitem.imagename = "newelixir_"..elixir_type
-	  inst.components.inventoryitem.atlasname = "images/inventoryimages/newelixir_"..elixir_type..".xml"
+		inst.components.inventoryitem.imagename = "newelixir_"..elixir_type
+		inst.components.inventoryitem.atlasname = "images/inventoryimages/newelixir_"..elixir_type..".xml"
 	end
 
-  inst:AddComponent("stackable")
+	inst:AddComponent("stackable")
 
-  inst:AddComponent("ghostlyelixir")
-  --inst.components.ghostlyelixir.doapplyelixerfn = DoApplyElixir
+	inst:AddComponent("ghostlyelixir")
+	--inst.components.ghostlyelixir.doapplyelixerfn = DoApplyElixir
 
-  inst:AddComponent("fuel")
-  inst.components.fuel.fuelvalue = TUNING.SMALL_FUEL
+	inst:AddComponent("fuel")
+	inst.components.fuel.fuelvalue = TUNING.SMALL_FUEL
 
-  return inst
+	return inst
 end
 
 local function AddElixir(elixirs, name)

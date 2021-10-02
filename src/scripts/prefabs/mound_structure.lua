@@ -8,10 +8,10 @@ local prefabs = {
 
 local function ReturnChildren(inst)
     local toremove = {}
-    for k, v in pairs(inst.components.childspawner.childrenoutside) do
+    for _, v in pairs(inst.components.childspawner.childrenoutside) do
         table.insert(toremove, v)
     end
-    for i, v in ipairs(toremove) do
+    for _, v in ipairs(toremove) do
         if v:IsAsleep() then
             v:PushEvent("detachchild")
             v:Remove()
@@ -88,7 +88,7 @@ local function OnLoad(inst, data)
     inst.components.gravecontainer.buried_trinket = data.buried_trinket
 end
 
-local function OnHaunt(inst, haunter)
+local function OnHaunt(_, _)
     return true
 end
 

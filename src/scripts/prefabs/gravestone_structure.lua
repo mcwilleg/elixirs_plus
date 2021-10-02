@@ -11,7 +11,7 @@ local assets = {
     Asset("MINIMAP_IMAGE", "gravestones"),
 }
 
-local function on_child_mound_dug(mound, data)
+local function on_child_mound_dug(_, _)
 end
 
 local function on_gravestone_removed(inst)
@@ -32,7 +32,7 @@ local function on_gravestone_removed(inst)
   end
 end
 
-local function onfinishcallback(inst, worker)
+local function onfinishcallback(inst, _)
   inst:Remove()
 end
 

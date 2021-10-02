@@ -9,22 +9,22 @@ Assets = {
 	Asset("ANIM", "anim/status_newelixir.zip"),
 
 	-- inventory images
-  Asset("IMAGE", "images/inventoryimages/bandage_ghost.tex"),
-  Asset("ATLAS", "images/inventoryimages/bandage_ghost.xml"),
-  Asset("IMAGE", "images/inventoryimages/gravestone_structure.tex"),
-  Asset("ATLAS", "images/inventoryimages/gravestone_structure.xml"),
-  Asset("IMAGE", "images/inventoryimages/newelixir_sanityaura.tex"),
-  Asset("ATLAS", "images/inventoryimages/newelixir_sanityaura.xml"),
-  Asset("IMAGE", "images/inventoryimages/newelixir_lightaura.tex"),
-  Asset("ATLAS", "images/inventoryimages/newelixir_lightaura.xml"),
-  Asset("IMAGE", "images/inventoryimages/newelixir_cleanse.tex"),
-  Asset("ATLAS", "images/inventoryimages/newelixir_cleanse.xml"),
-  Asset("IMAGE", "images/inventoryimages/newelixir_insanitydamage.tex"),
-  Asset("ATLAS", "images/inventoryimages/newelixir_insanitydamage.xml"),
-  Asset("IMAGE", "images/inventoryimages/newelixir_shadowfighter.tex"),
-  Asset("ATLAS", "images/inventoryimages/newelixir_shadowfighter.xml"),
-  Asset("IMAGE", "images/inventoryimages/newelixir_lightning.tex"),
-  Asset("ATLAS", "images/inventoryimages/newelixir_lightning.xml"),
+	Asset("IMAGE", "images/inventoryimages/bandage_ghost.tex"),
+	Asset("ATLAS", "images/inventoryimages/bandage_ghost.xml"),
+	Asset("IMAGE", "images/inventoryimages/gravestone_structure.tex"),
+	Asset("ATLAS", "images/inventoryimages/gravestone_structure.xml"),
+	Asset("IMAGE", "images/inventoryimages/newelixir_sanityaura.tex"),
+	Asset("ATLAS", "images/inventoryimages/newelixir_sanityaura.xml"),
+	Asset("IMAGE", "images/inventoryimages/newelixir_lightaura.tex"),
+	Asset("ATLAS", "images/inventoryimages/newelixir_lightaura.xml"),
+	Asset("IMAGE", "images/inventoryimages/newelixir_cleanse.tex"),
+	Asset("ATLAS", "images/inventoryimages/newelixir_cleanse.xml"),
+	Asset("IMAGE", "images/inventoryimages/newelixir_insanitydamage.tex"),
+	Asset("ATLAS", "images/inventoryimages/newelixir_insanitydamage.xml"),
+	Asset("IMAGE", "images/inventoryimages/newelixir_shadowfighter.tex"),
+	Asset("ATLAS", "images/inventoryimages/newelixir_shadowfighter.xml"),
+	Asset("IMAGE", "images/inventoryimages/newelixir_lightning.tex"),
+	Asset("ATLAS", "images/inventoryimages/newelixir_lightning.xml"),
 }
 
 PrefabFiles = {
@@ -35,12 +35,11 @@ PrefabFiles = {
 }
 
 local STRINGS = GLOBAL.STRINGS
-local CHARACTERS = STRINGS.CHARACTERS
+local CHARACTERS = GLOBAL.STRINGS.CHARACTERS
 local Ingredient = GLOBAL.Ingredient
 local RECIPETABS = GLOBAL.RECIPETABS
 local CUSTOM_RECIPETABS = GLOBAL.CUSTOM_RECIPETABS
 local TECH = GLOBAL.TECH
-local require = GLOBAL.require
 
 -- tuning values for this mod here
 TUNING.ELIXIRS_PLUS = {
@@ -72,39 +71,39 @@ TUNING.ELIXIRS_PLUS = {
 }
 
 AddAction("BURY", "Bury", function(act)
-  if act.invobject ~= nil and act.doer.components.inventory ~= nil and act.target ~= nil then
-    local trinket = act.doer.components.inventory:RemoveItem(act.invobject)
-    if trinket ~= nil then
-      if act.target.components.gravecontainer ~= nil and act.target.components.gravecontainer:Bury(trinket, act.doer) then
+	if act.invobject ~= nil and act.doer.components.inventory ~= nil and act.target ~= nil then
+		local trinket = act.doer.components.inventory:RemoveItem(act.invobject)
+		if trinket ~= nil then
+			if act.target.components.gravecontainer ~= nil and act.target.components.gravecontainer:Bury(trinket, act.doer) then
 				return true
-      end
-      act.doer.components.inventory:GiveItem(trinket)
-    end
-  end
+			end
+			act.doer.components.inventory:GiveItem(trinket)
+		end
+	end
 end)
 
-local ghostflower_values = {
-	bee = 2,
-	killerbee = 2,
-	butterfly = 1,
-	crow = 2,
-	robin = 2,
-	robin_winter = 2,
-	canary = 2,
-	puffin = 2,
-	fireflies = 3,
-	lureplantbulb = 4,
-	mosquito = 2,
-	rabbit = 1,
-	mole = 2,
-	carrat = 2,
-	moonbutterfly = 3
+local sacrifices = {
+	bee = { flowers = 2, sound = "dontstarve/bee/bee_death" },
+	killerbee = { flowers = 2, sound = "dontstarve/bee/killerbee_death" },
+	butterfly = { flowers = 1 },
+	crow = { flowers = 2 },
+	robin = { flowers = 2 },
+	robin_winter = { flowers = 2 },
+	canary = { flowers = 2 },
+	puffin = { flowers = 2 },
+	fireflies = { flowers = 3 },
+	lureplantbulb = { flowers = 4, sound = "dontstarve/creatures/eyeplant/vine_retract" },
+	mosquito = { flowers = 2, sound = "dontstarve/creatures/mosquito/mosquito_death" },
+	rabbit = { flowers = 1 },
+	mole = { flowers = 2 },
+	carrat = { flowers = 2 },
+	moonbutterfly = { flowers = 3 },
 }
 
-AddAction("MOONSACRIFICE", "Drown", function(act)
-  if act.invobject ~= nil and act.doer.components.inventory ~= nil and act.target ~= nil then
+AddAction("MOONSACRIFICE", "Sacrifice", function(act)
+	if act.invobject ~= nil and act.doer.components.inventory ~= nil and act.target ~= nil then
 		local animal = act.doer.components.inventory:RemoveItem(act.invobject)
-		local reason = nil
+		local reason
 		if animal ~= nil then
 			if GLOBAL.TheWorld.state.moonphase ~= "full" then
 				reason = "NO_FULLMOON"
@@ -112,10 +111,11 @@ AddAction("MOONSACRIFICE", "Drown", function(act)
 				reason = "NO_NIGHT"
 			else
 				act.target.SoundEmitter:PlaySound("turnoftides/common/together/water/splash/medium")
-				if animal.components.health ~= nil and animal.components.health.murdersound ~= nil then
-					act.target.SoundEmitter:PlaySound(GLOBAL.FunctionOrValue(animal.components.health.murdersound, animal, act.doer))
+				local murdersound = sacrifices[animal.prefab].sound or (animal.components.health ~= nil and animal.components.health.murdersound or nil)
+				if murdersound ~= nil then
+					act.target.SoundEmitter:PlaySound(GLOBAL.FunctionOrValue(murdersound, animal, act.doer))
 				end
-				act.target.pending_ghostflowers = math.min((act.target.pending_ghostflowers or 0) + (ghostflower_values[animal.prefab] or 1), TUNING.ELIXIRS_PLUS.MAX_SACRIFICE)
+				act.target.pending_ghostflowers = math.min((act.target.pending_ghostflowers or 0) + (sacrifices[animal.prefab].flowers or 1), TUNING.ELIXIRS_PLUS.MAX_SACRIFICE)
 				if act.doer.components.sanity ~= nil then
 					act.doer.components.sanity:DoDelta(-TUNING.SANITY_LARGE)
 				end
@@ -128,9 +128,10 @@ AddAction("MOONSACRIFICE", "Drown", function(act)
 	end
 end)
 
-AddComponentAction("USEITEM", "inventoryitem", function(inst, doer, target, actions, right)
-	local item_value = ghostflower_values[inst.prefab] or 0
-	if target.prefab == "moondial" and item_value > 0 and ((target.pending_ghostflowers or 0) + item_value) < TUNING.ELIXIRS_PLUS.MAX_SACRIFICE and not target:HasTag("NOCLICK") then
+AddComponentAction("USEITEM", "inventoryitem", function(inst, _, target, actions, _)
+	local sacrifice_value = sacrifices[inst.prefab] ~= nil and sacrifices[inst.prefab].flowers or 0
+	if target.prefab == "moondial" and sacrifice_value > 0 and (target.pending_ghostflowers or 0) < TUNING.ELIXIRS_PLUS.MAX_SACRIFICE and not target:HasTag("NOCLICK") then
+		print("flowers: "..tostring(target.pending_ghostflowers or 0))
 		table.insert(actions, GLOBAL.ACTIONS.MOONSACRIFICE)
 	end
 	if inst:HasTag("trinket") and target:HasTag("customgrave") and not target:HasTag("NOCLICK") then
@@ -145,31 +146,32 @@ AddStategraphActionHandler("wilson", GLOBAL.ActionHandler(GLOBAL.ACTIONS.MOONSAC
 AddStategraphActionHandler("wilson_client", GLOBAL.ActionHandler(GLOBAL.ACTIONS.MOONSACRIFICE, "dolongaction"))
 
 AddPrefabPostInit("moondial", function(inst)
-	inst:WatchWorldState("isday", function(inst, isday)
+	inst:WatchWorldState("isday", function(moondial, isday)
 		if not isday then return end
-		local flowers = inst.pending_ghostflowers or 0
+		local flowers = moondial.pending_ghostflowers or 0
 		if flowers > 0 then
 			for k = 1, flowers do
-				inst:DoTaskInTime(k / 5.0, function(moondial)
+				moondial:DoTaskInTime(k / 5.0, function(lootdropper)
 					local loot = GLOBAL.SpawnPrefab("ghostflower")
 					if loot ~= nil then
+						-- fling ghostflowers
 						local angle = math.random() * 2 * GLOBAL.PI
-            local sinangle = math.sin(angle)
-            local cosangle = math.cos(angle)
-						local pt = moondial:GetPosition()
-						local radius = loot:GetPhysicsRadius(1)
+						local sinangle = math.sin(angle)
+						local cosangle = math.cos(angle)
+						local pt = lootdropper:GetPosition()
+						--local radius = loot:GetPhysicsRadius(1)
 						loot.Transform:SetPosition(
 							pt.x - cosangle / 2.0,
 							pt.y + 1.2,
 							pt.z + sinangle / 2.0
 						)
 						if loot.Physics ~= nil then
-              loot.Physics:SetVel(2 * cosangle, 12, 2 * -sinangle)
+							loot.Physics:SetVel(2 * cosangle, 12, 2 * -sinangle)
 						end
 					end
 				end)
 			end
-			inst.pending_ghostflowers = 0
+			moondial.pending_ghostflowers = 0
 		end
 	end)
 	inst.pending_ghostflowers = 0
@@ -186,25 +188,7 @@ for k = 1, GLOBAL.NUM_TRINKETS do
 	end
 end
 
-local normal_ghost_prefabs = {
-	"ghost",
-	"smallghost",
-}
-
--- Tag non-abigail ghosts for wendy's sanity aura immunities
-for _g, prefab in ipairs(normal_ghost_prefabs) do
-	AddPrefabPostInit(prefab, function(inst)
-		inst:AddTag("normalghost")
-	end)
-end
-
-AddPrefabPostInit("wendy", function(inst)
-	if inst.components.sanity ~= nil then
-		inst.components.sanity:AddSanityAuraImmunity("normalghost")
-	end
-end)
-
-local function DoNightmareElixir(inst, giver, target)
+local function DoNightmareElixir(_, _, target)
 	target.AnimState:SetBuild("ghost_abigail_nightmare_build")
 end
 
@@ -260,10 +244,10 @@ local NEW_ELIXIRS = {
 }
 
 -- Update apply functions for all elixirs
-for _e, ELIXIR in ipairs(OLD_ELIXIRS) do
+for _, ELIXIR in ipairs(OLD_ELIXIRS) do
 	AddPrefabPostInit("ghostlyelixir_"..ELIXIR, UpdateDoApplyElixirFn)
 end
-for _e, ELIXIR in ipairs(NEW_ELIXIRS) do
+for _, ELIXIR in ipairs(NEW_ELIXIRS) do
 	AddPrefabPostInit("newelixir_"..ELIXIR, UpdateDoApplyElixirFn)
 end
 
@@ -323,62 +307,78 @@ end)
 
 AddPrefabPostInit("abigail", function(inst)
 	-- Add function to update angry eyes build when riled up
-	inst.UpdateEyes = function(inst)
-		if inst.is_defensive then
-			inst.AnimState:ClearOverrideSymbol("ghost_eyes")
+	inst.UpdateEyes = function(abigail)
+		if abigail.is_defensive then
+			abigail.AnimState:ClearOverrideSymbol("ghost_eyes")
 		else
-			inst.AnimState:OverrideSymbol("ghost_eyes", inst.AnimState:GetBuild(), "angry_ghost_eyes")
+			abigail.AnimState:OverrideSymbol("ghost_eyes", abigail.AnimState:GetBuild(), "angry_ghost_eyes")
 		end
 	end
 
 	-- Add function to turn nightmare abigail on and off
-	inst.SetNightmareAbigail = function(inst, nightmare)
+	inst.SetNightmareAbigail = function(abigail, nightmare)
 		if nightmare then
-			inst.AnimState:SetBuild("ghost_abigail_nightmare_build")
-			inst:AddComponent("sanityaura")
-			inst.components.sanityaura.aura = -TUNING.SANITYAURA_LARGE
-			if inst._playerlink ~= nil then
-				inst._playerlink.components.sanity:RemoveSanityAuraImmunity("ghost")
+			abigail.AnimState:SetBuild("ghost_abigail_nightmare_build")
+			abigail:AddComponent("sanityaura")
+			abigail.components.sanityaura.aura = -TUNING.SANITYAURA_LARGE
+			if abigail._playerlink ~= nil then
+				abigail._playerlink.components.sanity:RemoveSanityAuraImmunity("ghost")
 			end
 		else
-			inst.AnimState:SetBuild("ghost_abigail_build")
-			inst:RemoveComponent("sanityaura")
-			if inst._playerlink ~= nil then
-				inst._playerlink.components.sanity:AddSanityAuraImmunity("ghost")
+			abigail.AnimState:SetBuild("ghost_abigail_build")
+			abigail:RemoveComponent("sanityaura")
+			if abigail._playerlink ~= nil then
+				abigail._playerlink.components.sanity:AddSanityAuraImmunity("ghost")
 			end
 		end
-		inst:UpdateEyes()
+		abigail:UpdateEyes()
 	end
 
 	-- New inspect dialogue for nightmare abigail
 	if inst.components.inspectable ~= nil then
 		local OldGetStatus = inst.components.inspectable.getstatus
-		inst.components.inspectable.getstatus = function(inst)
-			if inst.AnimState:GetBuild() == "ghost_abigail_nightmare_build" then
+		inst.components.inspectable.getstatus = function(abigail)
+			if abigail.AnimState:GetBuild() == "ghost_abigail_nightmare_build" then
 				return "NIGHTMARE"
 			else
-				return OldGetStatus(inst)
+				return OldGetStatus(abigail)
 			end
 		end
 	end
 
 	-- Let abigail use any build's angry eyes when riled up (normally hard-coded, no good)
 	local OldBecomeAggressive = inst.BecomeAggressive
-	inst.BecomeAggressive = function(inst)
-		local current_build = inst.AnimState:GetBuild()
-		OldBecomeAggressive(inst)
-		inst.AnimState:OverrideSymbol("ghost_eyes", current_build, "angry_ghost_eyes")
+	inst.BecomeAggressive = function(abigail)
+		local current_build = abigail.AnimState:GetBuild()
+		OldBecomeAggressive(abigail)
+		abigail.AnimState:OverrideSymbol("ghost_eyes", current_build, "angry_ghost_eyes")
 	end
 end)
 
+local normal_ghost_prefabs = {
+	"ghost",
+	"smallghost",
+}
+
+-- Tag non-abigail ghosts for wendy's sanity aura immunities
+for _, prefab in ipairs(normal_ghost_prefabs) do
+	AddPrefabPostInit(prefab, function(inst)
+		inst:AddTag("normalghost")
+	end)
+end
+
 AddPrefabPostInit("wendy", function(inst)
-	inst.OnUseGhostBandage = function(inst, data)
+	if inst.components.sanity ~= nil then
+		inst.components.sanity:AddSanityAuraImmunity("normalghost")
+	end
+
+	inst.OnUseGhostBandage = function(wendy, data)
 		if data.cause == "bandage_ghost" then
-			if inst.components.sanity ~= nil then
-				inst.components.sanity:DoDelta(TUNING.SANITY_MED)
+			if wendy.components.sanity ~= nil then
+				wendy.components.sanity:DoDelta(TUNING.SANITY_MED)
 			end
-			if inst.components.ghostlybond ~= nil then
-				local ghost = inst.components.ghostlybond.ghost
+			if wendy.components.ghostlybond ~= nil then
+				local ghost = wendy.components.ghostlybond.ghost
 				if ghost ~= nil then
 					local healing = ghost.components.health:GetMaxWithPenalty() * 0.2
 					ghost.components.health:DoDelta(healing)
@@ -536,7 +536,7 @@ end
 CHARACTERS.WENDY.ACTIONFAIL.GIVE.WRONG_ELIXIR = "I can't apply it without cleansing her!"
 CHARACTERS.WENDY.ACTIONFAIL.GIVE.NO_ELIXIR = "It won't stick!"
 CHARACTERS.WENDY.ACTIONFAIL.MOONSACRIFICE = {
-	NO_FULLMOON = "There is not enough water yet.",
+	NO_FULLMOON = "I will have to wait for a full moon.",
 	NO_NIGHT = "I will have to wait for night."
 }
 
@@ -548,8 +548,8 @@ CHARACTERS.WENDY.DESCRIBE.GRAVESTONE_STRUCTURE = "Asylum for a lost soul."
 
 STRINGS.NAMES.MOUND_STRUCTURE = "Grave"
 CHARACTERS.WENDY.DESCRIBE.MOUND_STRUCTURE = {
-	GENERIC = "Now we can help another.",
-	DUG = "An offering may attract a lost soul."
+	GENERIC = "Now we can help.",
+	DUG = "All it needs is an offering."
 }
 
 STRINGS.NAMES.BANDAGE_GHOST = "Spiritual Liniment"
