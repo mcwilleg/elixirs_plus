@@ -153,7 +153,7 @@ AddPrefabPostInit("moondial", function(inst)
 		local flowers = moondial.pending_ghostflowers or 0
 		if flowers > 0 then
 			for k = 1, flowers do
-				moondial:DoTaskInTime(k * 0.1, function(lootdropper)
+				moondial:DoTaskInTime(k * 0.1 + 3, function(lootdropper)
 					local loot = GLOBAL.SpawnPrefab("ghostflower")
 					if loot ~= nil then
 						-- fling ghostflowers
@@ -358,6 +358,11 @@ AddPrefabPostInit("abigail", function(inst)
 		abigail:UpdateEyes()
 	end
 
+	-- Add function to get nightmare status
+	inst.IsNightmareAbigail = function(abigail)
+		return abigail.AnimState:GetBuild() == "ghost_abigail_nightmare_build"
+	end
+
 	-- New inspect dialogue for nightmare abigail
 	if inst.components.inspectable ~= nil then
 		local OldGetStatus = inst.components.inspectable.getstatus
@@ -377,6 +382,25 @@ AddPrefabPostInit("abigail", function(inst)
 		OldBecomeAggressive(abigail)
 		abigail.AnimState:OverrideSymbol("ghost_eyes", current_build, "angry_ghost_eyes")
 	end
+
+	-- sanity bomb nearby players when abigail dies with a nightmare elixir equipped
+	inst:ListenForEvent("death", function(abigail)
+		if abigail:IsNightmareAbigail() then
+			local x, y, z = abigail.Transform:GetWorldPosition()
+			local necessary_tags = { "player" }
+			local nearby_players = GLOBAL.TheSim:FindEntities(x, y, z, 15, necessary_tags)
+			for _, p in ipairs(nearby_players) do
+				if p.components.sanity ~= nil then
+					p.components.sanity:DoDelta(-TUNING.SANITY_HUGE)
+				end
+			end
+			local nightmare_burst = GLOBAL.SpawnPrefab("stalker_shield")
+			nightmare_burst.Transform:SetPosition(abigail:GetPosition():Get())
+			nightmare_burst.AnimState:SetScale(1.5, 1.5, 1.5)
+			abigail.SoundEmitter:PlaySound("dontstarve/common/deathpoof")
+			abigail.SoundEmitter:PlaySound("dontstarve/creatures/together/stalker/shield")
+		end
+	end)
 end)
 
 local normal_ghost_prefabs = {
