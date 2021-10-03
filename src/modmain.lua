@@ -164,7 +164,6 @@ AddPrefabPostInit("moondial", function(inst)
 						end
 						local fx = GLOBAL.SpawnPrefab("splash")
 						fx.Transform:SetPosition(pt:Get())
-						lootdropper.SoundEmitter:PlaySound("dontstarve/common/deathpoof")
 					end
 				end)
 			end
