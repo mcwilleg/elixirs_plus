@@ -105,17 +105,21 @@ AddAction("MOONSACRIFICE", "Sacrifice", function(act)
 		local animal = act.doer.components.inventory:RemoveItem(act.invobject)
 		local reason
 		if animal ~= nil then
+			local sacrifice_value = sacrifices[animal.prefab].flowers or 0
+			local old_total = act.target.pending_ghostflowers or 0
 			if GLOBAL.TheWorld.state.moonphase ~= "full" then
 				reason = "NO_FULLMOON"
 			elseif GLOBAL.TheWorld.state.phase ~= "night" then
 				reason = "NO_NIGHT"
+			elseif old_total >= TUNING.ELIXIRS_PLUS.MAX_SACRIFICE then
+				reason = "MOONDIAL_FULL"
 			else
 				act.target.SoundEmitter:PlaySound("turnoftides/common/together/water/splash/medium")
 				local murdersound = sacrifices[animal.prefab].sound or (animal.components.health ~= nil and animal.components.health.murdersound or nil)
 				if murdersound ~= nil then
 					act.target.SoundEmitter:PlaySound(GLOBAL.FunctionOrValue(murdersound, animal, act.doer))
 				end
-				act.target.pending_ghostflowers = math.min((act.target.pending_ghostflowers or 0) + (sacrifices[animal.prefab].flowers or 1), TUNING.ELIXIRS_PLUS.MAX_SACRIFICE)
+				act.target:PushEvent("onmoonsacrifice", { sacrifice_value = sacrifice_value })
 				if act.doer.components.sanity ~= nil then
 					act.doer.components.sanity:DoDelta(-TUNING.SANITY_LARGE)
 				end
@@ -128,10 +132,8 @@ AddAction("MOONSACRIFICE", "Sacrifice", function(act)
 	end
 end)
 
-AddComponentAction("USEITEM", "inventoryitem", function(inst, _, target, actions, _)
-	local sacrifice_value = sacrifices[inst.prefab] ~= nil and sacrifices[inst.prefab].flowers or 0
-	if target.prefab == "moondial" and sacrifice_value > 0 and (target.pending_ghostflowers or 0) < TUNING.ELIXIRS_PLUS.MAX_SACRIFICE and not target:HasTag("NOCLICK") then
-		print("flowers: "..tostring(target.pending_ghostflowers or 0))
+AddComponentAction("USEITEM", "inventoryitem", function(inst, doer, target, actions, _)
+	if doer:HasTag("elixirbrewer") and target.prefab == "moondial" and sacrifices[inst.prefab] ~= nil and not target:HasTag("NOCLICK") then
 		table.insert(actions, GLOBAL.ACTIONS.MOONSACRIFICE)
 	end
 	if inst:HasTag("trinket") and target:HasTag("customgrave") and not target:HasTag("NOCLICK") then
@@ -151,7 +153,7 @@ AddPrefabPostInit("moondial", function(inst)
 		local flowers = moondial.pending_ghostflowers or 0
 		if flowers > 0 then
 			for k = 1, flowers do
-				moondial:DoTaskInTime(k / 5.0, function(lootdropper)
+				moondial:DoTaskInTime(k * 0.1, function(lootdropper)
 					local loot = GLOBAL.SpawnPrefab("ghostflower")
 					if loot ~= nil then
 						-- fling ghostflowers
@@ -159,22 +161,46 @@ AddPrefabPostInit("moondial", function(inst)
 						local sinangle = math.sin(angle)
 						local cosangle = math.cos(angle)
 						local pt = lootdropper:GetPosition()
-						--local radius = loot:GetPhysicsRadius(1)
-						loot.Transform:SetPosition(
-							pt.x - cosangle / 2.0,
-							pt.y + 1.2,
-							pt.z + sinangle / 2.0
-						)
+						pt.y = 2
+						loot.Transform:SetPosition(pt:Get())
 						if loot.Physics ~= nil then
 							loot.Physics:SetVel(2 * cosangle, 12, 2 * -sinangle)
 						end
+						local fx = GLOBAL.SpawnPrefab("splash")
+						fx.Transform:SetPosition(pt:Get())
+						lootdropper.SoundEmitter:PlaySound("dontstarve/common/deathpoof")
 					end
 				end)
 			end
+			moondial.SoundEmitter:KillSound("idlesound")
 			moondial.pending_ghostflowers = 0
 		end
 	end)
+
 	inst.pending_ghostflowers = 0
+	inst:ListenForEvent("onmoonsacrifice", function(moondial, data)
+		moondial.pending_ghostflowers = math.min(moondial.pending_ghostflowers + data.sacrifice_value, TUNING.ELIXIRS_PLUS.MAX_SACRIFICE)
+		local pt = moondial:GetPosition()
+		pt.y = 2
+		local fx = GLOBAL.SpawnPrefab("splash")
+		fx.Transform:SetPosition(pt:Get())
+		if moondial.pending_ghostflowers >= TUNING.ELIXIRS_PLUS.MAX_SACRIFICE and not moondial.SoundEmitter:PlayingSound("idlesound") then
+			moondial.SoundEmitter:PlaySound("dontstarve/common/together/celestial_orb/active")
+			moondial.SoundEmitter:PlaySound("dontstarve/common/together/celestial_orb/idle_LP", "idlesound")
+			moondial.Light:SetRadius(7.0)
+		end
+	end)
+
+	if inst.components.inspectable ~= nil then
+		local OldGetStatus = inst.components.inspectable.getstatus
+		inst.components.inspectable.getstatus = function(moondial, viewer)
+			if viewer.prefab == "wendy" and moondial.pending_ghostflowers >= TUNING.ELIXIRS_PLUS.MAX_SACRIFICE then
+				return "RITUAL_COMPLETE"
+			else
+				return OldGetStatus(moondial, viewer)
+			end
+		end
+	end
 end)
 
 local function TrinketPostInit(inst)
@@ -202,10 +228,8 @@ local function DoApplyElixir(inst, giver, target)
 			if cur_buff.prefab ~= inst.buff_prefab then
 				target.components.debuffable:RemoveDebuff("elixir_buff")
 			end
-		else
-			if inst.prefab == "newelixir_cleanse" then
-				return false, "NO_ELIXIR"
-			end
+		elseif inst.prefab == "newelixir_cleanse" then
+			return false, "NO_ELIXIR"
 		end
 		target.components.debuffable:AddDebuff("elixir_buff", inst.buff_prefab)
 		if inst.potion_tunings.NIGHTMARE_ELIXIR then
@@ -337,8 +361,8 @@ AddPrefabPostInit("abigail", function(inst)
 	-- New inspect dialogue for nightmare abigail
 	if inst.components.inspectable ~= nil then
 		local OldGetStatus = inst.components.inspectable.getstatus
-		inst.components.inspectable.getstatus = function(abigail)
-			if abigail.AnimState:GetBuild() == "ghost_abigail_nightmare_build" then
+		inst.components.inspectable.getstatus = function(abigail, viewer)
+			if viewer.prefab == "wendy" and abigail.AnimState:GetBuild() == "ghost_abigail_nightmare_build" then
 				return "NIGHTMARE"
 			else
 				return OldGetStatus(abigail)
@@ -537,10 +561,12 @@ CHARACTERS.WENDY.ACTIONFAIL.GIVE.WRONG_ELIXIR = "I can't apply it without cleans
 CHARACTERS.WENDY.ACTIONFAIL.GIVE.NO_ELIXIR = "It won't stick!"
 CHARACTERS.WENDY.ACTIONFAIL.MOONSACRIFICE = {
 	NO_FULLMOON = "I will have to wait for a full moon.",
-	NO_NIGHT = "I will have to wait for night."
+	NO_NIGHT = "I will have to wait for night.",
+	MOONDIAL_FULL = "It appears to be satisfied."
 }
 
 CHARACTERS.WENDY.DESCRIBE.ABIGAIL.NIGHTMARE = "A-...Abigail...?"
+CHARACTERS.WENDY.DESCRIBE.MOONDIAL.RITUAL_COMPLETE = "It's humming..."
 
 STRINGS.NAMES.GRAVESTONE_STRUCTURE = "Headstone"
 STRINGS.RECIPE_DESC.GRAVESTONE_STRUCTURE = "Revenant relocation."
