@@ -1,7 +1,6 @@
 Assets = {
 	-- prefab anim files
 	Asset("ANIM", "anim/new_elixirs.zip"),
-	Asset("ANIM", "anim/bandage_ghost.zip"),
 	Asset("ANIM", "anim/gravestones.zip"),
 
 	-- alternate builds
@@ -9,8 +8,6 @@ Assets = {
 	Asset("ANIM", "anim/status_newelixir.zip"),
 
 	-- inventory images
-	Asset("IMAGE", "images/inventoryimages/bandage_ghost.tex"),
-	Asset("ATLAS", "images/inventoryimages/bandage_ghost.xml"),
 	Asset("IMAGE", "images/inventoryimages/gravestone_structure.tex"),
 	Asset("ATLAS", "images/inventoryimages/gravestone_structure.xml"),
 	Asset("IMAGE", "images/inventoryimages/newelixir_sanityaura.tex"),
@@ -29,7 +26,6 @@ Assets = {
 
 PrefabFiles = {
 	"new_elixirs",
-	"bandage_ghost",
 	"gravestone_structure",
 	"mound_structure"
 }
@@ -419,22 +415,6 @@ AddPrefabPostInit("wendy", function(inst)
 	if inst.components.sanity ~= nil then
 		inst.components.sanity:AddSanityAuraImmunity("normalghost")
 	end
-
-	inst.OnUseGhostBandage = function(wendy, data)
-		if data.cause == "bandage_ghost" then
-			if wendy.components.sanity ~= nil then
-				wendy.components.sanity:DoDelta(TUNING.SANITY_MED)
-			end
-			if wendy.components.ghostlybond ~= nil then
-				local ghost = wendy.components.ghostlybond.ghost
-				if ghost ~= nil then
-					local healing = ghost.components.health:GetMaxWithPenalty() * 0.2
-					ghost.components.health:DoDelta(healing)
-				end
-			end
-		end
-	end
-	inst:ListenForEvent("healthdelta", inst.OnUseGhostBandage)
 end)
 
 -- these numbers are copied from debug logs, not sure how to get net_hash vars outside the class without using literals
@@ -511,14 +491,6 @@ AddRecipe("gravestone_structure", {
 "images/inventoryimages/gravestone_structure.xml",
 "gravestone_structure.tex")
 
---AddRecipe("bandage_ghost", {
-	--Ingredient("charcoal", 1),
-	--Ingredient("petals", 1),
-	--Ingredient("ice", 2)
---}, CUSTOM_RECIPETABS.ELIXIRBREWING, TECH.NONE, nil, nil, nil, nil, "elixirbrewer",
---"images/inventoryimages/bandage_ghost.xml",
---"bandage_ghost.tex")
-
 --AddRecipe("newelixir_freeze", {
 	--Ingredient("bluegem", 1),
 	--Ingredient("nightmarefuel", 5),
@@ -526,23 +498,6 @@ AddRecipe("gravestone_structure", {
 --}, CUSTOM_RECIPETABS.ELIXIRBREWING, TECH.NONE, nil, nil, nil, nil, "elixirbrewer",
 --"images/inventoryimages/newelixir_freeze.xml",
 --"newelixir_freeze.tex")
-
--- bandage_ghost description
-CHARACTERS.GENERIC.DESCRIBE.BANDAGE_GHOST = CHARACTERS.GENERIC.DESCRIBE.GHOSTLYELIXIR_SPEED
-CHARACTERS.WILLOW.DESCRIBE.BANDAGE_GHOST = CHARACTERS.WILLOW.DESCRIBE.GHOSTLYELIXIR_SPEED
-CHARACTERS.WOLFGANG.DESCRIBE.BANDAGE_GHOST = CHARACTERS.WOLFGANG.DESCRIBE.GHOSTLYELIXIR_SPEED
-CHARACTERS.WX78.DESCRIBE.BANDAGE_GHOST = CHARACTERS.WX78.DESCRIBE.GHOSTLYELIXIR_SPEED
-CHARACTERS.WICKERBOTTOM.DESCRIBE.BANDAGE_GHOST = CHARACTERS.WICKERBOTTOM.DESCRIBE.GHOSTLYELIXIR_SPEED
-CHARACTERS.WOODIE.DESCRIBE.BANDAGE_GHOST = CHARACTERS.WOODIE.DESCRIBE.GHOSTLYELIXIR_SPEED
-CHARACTERS.WAXWELL.DESCRIBE.BANDAGE_GHOST = CHARACTERS.WAXWELL.DESCRIBE.GHOSTLYELIXIR_SPEED
-CHARACTERS.WATHGRITHR.DESCRIBE.BANDAGE_GHOST = CHARACTERS.WATHGRITHR.DESCRIBE.GHOSTLYELIXIR_SPEED
-CHARACTERS.WEBBER.DESCRIBE.BANDAGE_GHOST = CHARACTERS.WEBBER.DESCRIBE.GHOSTLYELIXIR_SPEED
-CHARACTERS.WARLY.DESCRIBE.BANDAGE_GHOST = CHARACTERS.WARLY.DESCRIBE.GHOSTLYELIXIR_SPEED
-CHARACTERS.WORMWOOD.DESCRIBE.BANDAGE_GHOST = CHARACTERS.WORMWOOD.DESCRIBE.GHOSTLYELIXIR_SPEED
-CHARACTERS.WINONA.DESCRIBE.BANDAGE_GHOST = CHARACTERS.WINONA.DESCRIBE.GHOSTLYELIXIR_SPEED
-CHARACTERS.WORTOX.DESCRIBE.BANDAGE_GHOST = CHARACTERS.WORTOX.DESCRIBE.GHOSTLYELIXIR_SPEED
-CHARACTERS.WURT.DESCRIBE.BANDAGE_GHOST = CHARACTERS.WURT.DESCRIBE.GHOSTLYELIXIR_SPEED
-CHARACTERS.WALTER.DESCRIBE.BANDAGE_GHOST = CHARACTERS.WALTER.DESCRIBE.GHOSTLYELIXIR_SPEED
 
 -- mound_structure description
 CHARACTERS.GENERIC.DESCRIBE.MOUND_STRUCTURE = CHARACTERS.GENERIC.DESCRIBE.MOUND
@@ -601,10 +556,6 @@ CHARACTERS.WENDY.DESCRIBE.MOUND_STRUCTURE = {
 	GENERIC = "Now we can help.",
 	DUG = "All it needs is an offering."
 }
-
-STRINGS.NAMES.BANDAGE_GHOST = "Spiritual Liniment"
-STRINGS.RECIPE_DESC.BANDAGE_GHOST = "For mind and soul."
-CHARACTERS.WENDY.DESCRIBE.BANDAGE_GHOST = "This will be good for both of us."
 
 STRINGS.NAMES.NEWELIXIR_SANITYAURA = "Floral Incense"
 STRINGS.RECIPE_DESC.NEWELIXIR_SANITYAURA = "Spirit-scents."
