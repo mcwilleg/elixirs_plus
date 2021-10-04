@@ -14,6 +14,8 @@ Assets = {
 	Asset("ATLAS", "images/inventoryimages/newelixir_sanityaura.xml"),
 	Asset("IMAGE", "images/inventoryimages/newelixir_lightaura.tex"),
 	Asset("ATLAS", "images/inventoryimages/newelixir_lightaura.xml"),
+	Asset("IMAGE", "images/inventoryimages/newelixir_healthdamage.tex"),
+	Asset("ATLAS", "images/inventoryimages/newelixir_healthdamage.xml"),
 	Asset("IMAGE", "images/inventoryimages/newelixir_cleanse.tex"),
 	Asset("ATLAS", "images/inventoryimages/newelixir_cleanse.xml"),
 	Asset("IMAGE", "images/inventoryimages/newelixir_insanitydamage.tex"),
@@ -417,10 +419,12 @@ AddPrefabPostInit("wendy", function(inst)
 end)
 
 -- these numbers are copied from debug logs, not sure how to get net_hash vars outside the class without using literals
+-- print(abigail._playerlink.components.pethealthbar:GetDebugString()) -> convert symbol hex to decimal
 AddClassPostConstruct("widgets/statusdisplays", function(inst)
 	if inst.pethealthbadge then
 		inst.pethealthbadge:SetBuildForSymbol("status_newelixir", 233052865)	--newelixir_sanityaura_buff
 		inst.pethealthbadge:SetBuildForSymbol("status_newelixir", 3759892665)	--newelixir_lightaura_buff
+		inst.pethealthbadge:SetBuildForSymbol("status_newelixir", 1525997575)	--newelixir_healthdamage_buff
 		inst.pethealthbadge:SetBuildForSymbol("status_newelixir", 3096020880)	--newelixir_insanitydamage_buff
 		inst.pethealthbadge:SetBuildForSymbol("status_newelixir", 3487606133)	--newelixir_shadowfighter_buff
 		inst.pethealthbadge:SetBuildForSymbol("status_newelixir", 536102728)	--newelixir_lightning_buff
@@ -447,8 +451,8 @@ AddRecipe("newelixir_healthdamage", {
 	Ingredient(GLOBAL.CHARACTER_INGREDIENT.HEALTH, 30),
 	Ingredient("ghostflower", 3)
 }, CUSTOM_RECIPETABS.ELIXIRBREWING, TECH.NONE, nil, nil, nil, nil, "elixirbrewer",
-"images/inventoryimages/newelixir_lightaura.xml",
-"newelixir_lightaura.tex")
+"images/inventoryimages/newelixir_healthdamage.xml",
+"newelixir_healthdamage.tex")
 
 AddRecipe("newelixir_cleanse", {
 	Ingredient("ash", 2),
