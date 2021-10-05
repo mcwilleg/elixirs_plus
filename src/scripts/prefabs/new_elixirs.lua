@@ -200,9 +200,6 @@ local potion_tunings = {
 			target.components.sanityaura.aura = TUNING.ELIXIRS_PLUS.SANITYAURA.AURA
 			if target._playerlink ~= nil then
 				target._playerlink.components.sanity:RemoveSanityAuraImmunity("ghost")
-				if target._playerlink ~= nil and target._playerlink.components.pethealthbar ~= nil then
-					print(target._playerlink.components.pethealthbar:GetDebugString())
-				end
 			end
 		end,
 		fx = "ghostlyelixir_slowregen_fx",
@@ -237,9 +234,6 @@ local potion_tunings = {
 		ONAPPLY = function(_, target)
 			target:AddComponent("heater")
 			target.components.heater.heat = TUNING.ELIXIRS_PLUS.LIGHTAURA.TEMPERATURE
-			if target._playerlink ~= nil and target._playerlink.components.pethealthbar ~= nil then
-				print(target._playerlink.components.pethealthbar:GetDebugString())
-			end
 		end,
 		ONDETACH = function(_, target)
 			target:RemoveComponent("heater")
@@ -252,9 +246,6 @@ local potion_tunings = {
 		DURATION = TUNING.TOTAL_DAY_TIME,
 		TICK_RATE = 0.5,
 		ONTICK = function(_, target)
-			if target._playerlink ~= nil and target._playerlink.components.pethealthbar ~= nil then
-				print(target._playerlink.components.pethealthbar:GetDebugString())
-			end
 			health_vex_damage_fn(target)
 		end,
 		ONDETACH = function(_, target)

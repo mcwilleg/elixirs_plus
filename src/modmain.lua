@@ -170,6 +170,7 @@ AddPrefabPostInit("moondial", function(inst)
 				end)
 			end
 			moondial.SoundEmitter:KillSound("idlesound")
+			moondial.SoundEmitter:KillSound("howl")
 			moondial.pending_ghostflowers = 0
 		end
 	end)
@@ -181,9 +182,14 @@ AddPrefabPostInit("moondial", function(inst)
 		pt.y = 2
 		local fx = GLOBAL.SpawnPrefab("splash")
 		fx.Transform:SetPosition(pt:Get())
-		if moondial.pending_ghostflowers >= TUNING.ELIXIRS_PLUS.MAX_SACRIFICE and not moondial.SoundEmitter:PlayingSound("idlesound") then
+		if moondial.pending_ghostflowers >= TUNING.ELIXIRS_PLUS.MAX_SACRIFICE then
 			moondial.SoundEmitter:PlaySound("dontstarve/common/together/celestial_orb/active")
-			moondial.SoundEmitter:PlaySound("dontstarve/common/together/celestial_orb/idle_LP", "idlesound")
+			if not moondial.SoundEmitter:PlayingSound("idlesound") then
+				moondial.SoundEmitter:PlaySound("dontstarve/common/together/celestial_orb/idle_LP", "idlesound")
+			end
+			if not moondial.SoundEmitter:PlayingSound("howl") then
+				moondial.SoundEmitter:PlaySound("dontstarve/ghost/ghost_howl_LP", "howl")
+			end
 			moondial.Light:SetRadius(7.0)
 		end
 	end)
@@ -381,7 +387,7 @@ AddPrefabPostInit("abigail", function(inst)
 	end
 
 	-- sanity bomb nearby players when abigail dies with a nightmare elixir equipped
-	inst:ListenForEvent("death", function(abigail)
+	inst:ListenForEvent("stopaura", function(abigail)
 		if abigail:IsNightmareAbigail() then
 			local x, y, z = abigail.Transform:GetWorldPosition()
 			local necessary_tags = { "player" }

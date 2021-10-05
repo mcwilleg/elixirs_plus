@@ -14,26 +14,37 @@ local assets = {
 local function on_child_mound_dug(_, _)
 end
 
+local function onhit(inst)
+    inst.SoundEmitter:PlaySound("dontstarve/common/destroy_stone")
+    inst.AnimState:PlayAnimation(inst.grave_anim.."_hit")
+    inst.AnimState:PushAnimation(inst.grave_anim, false)
+end
+
 local function on_gravestone_removed(inst)
-  if inst.mound then
-    local buried_trinket = inst.mound.components.gravecontainer.buried_trinket
-    if buried_trinket ~= nil then
-      inst.components.lootdropper:SpawnLootPrefab(buried_trinket)
-      inst.mound.components.gravecontainer.buried_trinket = nil
+    if inst.mound then
+        local buried_trinket = inst.mound.components.gravecontainer.buried_trinket
+        if buried_trinket ~= nil then
+            inst.components.lootdropper:SpawnLootPrefab(buried_trinket)
+            inst.mound.components.gravecontainer.buried_trinket = nil
+        end
+        inst.mound:Remove()
     end
-    inst.mound:Remove()
-  end
-  inst.components.lootdropper:SpawnLootPrefab("marble")
-  if inst.ghost ~= nil then
-      inst.ghost.sg:GoToState("disappear", function(ghost)
-          ghost:DoTaskInTime(0, inst.ghost.RemoveFromScene)
-      end)
-      inst.ghost:DoTaskInTime(1, function(ghost) ghost:Remove() end)
-  end
+    inst.components.lootdropper:SpawnLootPrefab("marble")
+    inst.components.lootdropper:SpawnLootPrefab("marble")
+    inst.components.lootdropper:SpawnLootPrefab("marble")
+    if inst.ghost ~= nil then
+        inst.ghost.sg:GoToState("disappear", function(ghost)
+            ghost:DoTaskInTime(0, inst.ghost.RemoveFromScene)
+        end)
+        inst.ghost:DoTaskInTime(1, function(ghost) ghost:Remove() end)
+    end
 end
 
 local function onfinishcallback(inst, _)
-  inst:Remove()
+    local fx = SpawnPrefab("collapse_small")
+    fx.Transform:SetPosition(inst.Transform:GetWorldPosition())
+    fx:SetMaterial("stone")
+    inst:Remove()
 end
 
 local function onload(inst, data, newents)
@@ -128,6 +139,7 @@ local function fn()
 
     inst.entity:AddTransform()
     inst.entity:AddAnimState()
+    inst.entity:AddSoundEmitter()
     inst.entity:AddMiniMapEntity()
     inst.entity:AddNetwork()
 
@@ -147,7 +159,8 @@ local function fn()
         return inst
     end
 
-    inst.AnimState:PlayAnimation("grave"..tostring(math.random(4)))
+    inst.grave_anim = "grave"..tostring(math.random(4))
+    inst.AnimState:PlayAnimation(inst.grave_anim)
 
     inst:AddComponent("inspectable")
     --inst.components.inspectable:SetDescription(STRINGS.EPITAPHS[math.random(#STRINGS.EPITAPHS)])
@@ -158,6 +171,7 @@ local function fn()
     inst.components.workable:SetWorkAction(ACTIONS.HAMMER)
     inst.components.workable:SetWorkLeft(6)
     inst.components.workable:SetOnFinishCallback(onfinishcallback)
+    inst.components.workable:SetOnWorkCallback(onhit)
 
     inst.mound = inst:SpawnChild("mound_structure")
     inst.mound.ghost_of_a_chance = 0.1
