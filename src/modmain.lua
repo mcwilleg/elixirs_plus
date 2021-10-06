@@ -37,6 +37,7 @@ local CHARACTERS = GLOBAL.STRINGS.CHARACTERS
 local Ingredient = GLOBAL.Ingredient
 local RECIPETABS = GLOBAL.RECIPETABS
 local CUSTOM_RECIPETABS = GLOBAL.CUSTOM_RECIPETABS
+local Recipes = GLOBAL.AllRecipes
 local TECH = GLOBAL.TECH
 
 -- tuning values for this mod here
@@ -90,7 +91,7 @@ local sacrifices = {
 	canary = { flowers = 2 },
 	puffin = { flowers = 2 },
 	fireflies = { flowers = 3 },
-	lureplantbulb = { flowers = 4, sound = "dontstarve/creatures/eyeplant/vine_retract" },
+	lureplantbulb = { flowers = 4 },
 	mosquito = { flowers = 2, sound = "dontstarve/creatures/mosquito/mosquito_death" },
 	rabbit = { flowers = 1 },
 	mole = { flowers = 2 },
@@ -151,7 +152,7 @@ AddPrefabPostInit("moondial", function(inst)
 		local flowers = moondial.pending_ghostflowers or 0
 		if flowers > 0 then
 			for k = 1, flowers do
-				moondial:DoTaskInTime(k * 0.1 + 3, function(lootdropper)
+				moondial:DoTaskInTime(k * 0.1 + 1.5, function(lootdropper)
 					local loot = GLOBAL.SpawnPrefab("ghostflower")
 					if loot ~= nil then
 						-- fling ghostflowers
@@ -206,15 +207,10 @@ AddPrefabPostInit("moondial", function(inst)
 	end
 end)
 
-local function TrinketPostInit(inst)
-	inst:AddTag("trinket")
-end
-
 for k = 1, GLOBAL.NUM_TRINKETS do
-	AddPrefabPostInit("trinket_"..tostring(k), TrinketPostInit)
-	if k <= GLOBAL.NUM_HALLOWEEN_ORNAMENTS then
-		AddPrefabPostInit("halloween_ornament_"..tostring(k), TrinketPostInit)
-	end
+	AddPrefabPostInit("trinket_"..tostring(k), function(inst)
+		inst:AddTag("trinket")
+	end)
 end
 
 local function DoNightmareElixir(_, _, target)
@@ -401,7 +397,6 @@ AddPrefabPostInit("abigail", function(inst)
 			nightmare_burst.Transform:SetPosition(abigail:GetPosition():Get())
 			nightmare_burst.AnimState:SetScale(1.5, 1.5, 1.5)
 			abigail.SoundEmitter:PlaySound("dontstarve/common/deathpoof")
-			abigail.SoundEmitter:PlaySound("dontstarve/creatures/together/stalker/shield")
 		end
 	end)
 end)
@@ -447,7 +442,7 @@ AddRecipe("newelixir_sanityaura", {
 
 AddRecipe("newelixir_lightaura", {
 	Ingredient("redgem", 1),
-	Ingredient("ghostflower", 1)
+	Ingredient("ghostflower", 2)
 }, CUSTOM_RECIPETABS.ELIXIRBREWING, TECH.NONE, nil, nil, nil, nil, "elixirbrewer",
 "images/inventoryimages/newelixir_lightaura.xml",
 "newelixir_lightaura.tex")
@@ -492,7 +487,7 @@ AddRecipe("newelixir_lightning", {
 "images/inventoryimages/newelixir_lightning.xml",
 "newelixir_lightning.tex")
 
-AddRecipe("gravestone_structure", {
+local recipe_gravestone_structure = AddRecipe("gravestone_structure", {
 	Ingredient("marble", 10),
 	Ingredient("boneshard", 4),
 	Ingredient("shovel", 1)
@@ -507,6 +502,9 @@ AddRecipe("gravestone_structure", {
 --}, CUSTOM_RECIPETABS.ELIXIRBREWING, TECH.NONE, nil, nil, nil, nil, "elixirbrewer",
 --"images/inventoryimages/newelixir_freeze.xml",
 --"newelixir_freeze.tex")
+
+-- recipe sorting
+recipe_gravestone_structure.sortkey = Recipes.sisturn.sortkey + 0.1
 
 -- mound_structure description
 CHARACTERS.GENERIC.DESCRIBE.MOUND_STRUCTURE = CHARACTERS.GENERIC.DESCRIBE.MOUND

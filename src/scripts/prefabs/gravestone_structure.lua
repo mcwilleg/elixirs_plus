@@ -14,6 +14,13 @@ local assets = {
 local function on_child_mound_dug(_, _)
 end
 
+local function specialdescriptionfn(inst, viewer)
+    if viewer.prefab == "wendy" then
+        return STRINGS.CHARACTERS.WENDY.DESCRIBE.GRAVESTONE_STRUCTURE
+    end
+    return inst.components.inspectable.description
+end
+
 local function onhit(inst)
     inst.SoundEmitter:PlaySound("dontstarve/common/destroy_stone")
     inst.AnimState:PlayAnimation(inst.grave_anim.."_hit")
@@ -163,7 +170,8 @@ local function fn()
     inst.AnimState:PlayAnimation(inst.grave_anim)
 
     inst:AddComponent("inspectable")
-    --inst.components.inspectable:SetDescription(STRINGS.EPITAPHS[math.random(#STRINGS.EPITAPHS)])
+    inst.components.inspectable:SetDescription(STRINGS.EPITAPHS[math.random(#STRINGS.EPITAPHS)])
+    inst.components.inspectable.getspecialdescription = specialdescriptionfn
 
     inst:AddComponent("lootdropper")
 
