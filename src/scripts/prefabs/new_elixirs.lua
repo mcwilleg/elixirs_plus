@@ -27,6 +27,12 @@ local function buff_OnAttached(inst, target)
 	inst.Transform:SetPosition(0, 0, 0)
 
 	target:SetNightmareAbigail(inst.potion_tunings.NIGHTMARE_ELIXIR)
+	if inst.potion_tunings.NIGHTMARE_ELIXIR then
+		local nightmare_core = SpawnPrefab("newelixir_nightmare_core")
+		nightmare_core.entity:SetParent(target.entity)
+		nightmare_core.Transform:SetPosition(0, 0, 0)
+		target.nightmare_core = nightmare_core
+	end
 
 	if inst.potion_tunings.ONAPPLY ~= nil then
 		inst.potion_tunings.ONAPPLY(inst, target)
@@ -75,6 +81,10 @@ local function buff_OnDetached(inst, target)
 	end
 
 	target:SetNightmareAbigail(false)
+	if target.nightmare_core ~= nil then
+		target.nightmare_core:Remove()
+		target.nightmare_core = nil
+	end
 
 	if inst.potion_tunings.ONDETACH ~= nil then
 		inst.potion_tunings.ONDETACH(inst, target)
@@ -103,26 +113,24 @@ local function post_init_buff_fn(inst, _, data)
 	return inst
 end
 
--- unused from the freeze elixir
-local function freeze_other(_, data)
-	local other = data.target
-	if other ~= nil then
-			if not (other.components.health ~= nil and other.components.health:IsDead()) then
-					if other.components.freezable ~= nil then
-							other.components.freezable:AddColdness(0.4)
-					end
-					if other.components.temperature ~= nil then
-							local mintemp = math.max(other.components.temperature.mintemp, 0)
-							local curtemp = other.components.temperature:GetCurrent()
-							if mintemp < curtemp then
-									other.components.temperature:DoDelta(math.max(-2, mintemp - curtemp))
-							end
-					end
-			end
-			if other.components.freezable ~= nil and not other.components.freezable:IsFrozen() then
-					other.components.freezable:SpawnShatterFX()
-			end
+local function nightmare_elixir_core_fn()
+	local inst = CreateEntity()
+
+	inst.entity:AddTransform()
+	inst.entity:AddNetwork()
+
+	inst.entity:SetPristine()
+
+	if not TheWorld.ismastersim then
+		return inst
 	end
+
+	inst:AddTag("NOCLICK")
+
+	inst:AddComponent("sanityaura")
+	inst.components.sanityaura.aura = -TUNING.SANITYAURA_LARGE
+
+	return inst
 end
 
 -- attempt lightning strike on nearby enemies
@@ -333,20 +341,6 @@ local potion_tunings = {
 		dripfx = "ghostlyelixir_slowregen_dripfx",
 	},
 	]]
-
-	-- unused tunings from the freeze elixir
-	newelixir_freeze = {
-		NIGHTMARE_ELIXIR = true,
-		DURATION = TUNING.TOTAL_DAY_TIME * 0.5,
-		ONAPPLY = function(_, target)
-			target:ListenForEvent("onhitother", freeze_other)
-		end,
-		ONDETACH = function(_, target)
-			target:RemoveEventCallback("onhitother", freeze_other)
-		end,
-		fx = "ghostlyelixir_slowregen_fx",
-		dripfx = "ghostlyelixir_slowregen_dripfx",
-	},
 }
 
 local function buff_fn(elixir_type, data)
@@ -440,5 +434,5 @@ AddElixir(elixirs, "cleanse")
 AddElixir(elixirs, "insanitydamage")
 AddElixir(elixirs, "shadowfighter")
 AddElixir(elixirs, "lightning")
---AddElixir(elixirs, "freeze")
+table.insert(elixirs, Prefab("newelixir_nightmare_core", nightmare_elixir_core_fn, {}, {}))
 return unpack(elixirs)
