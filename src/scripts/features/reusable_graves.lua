@@ -22,15 +22,17 @@ local function OnDestroy(gravestone, _)
 end
 
 local function RemoveGhost(gravestone)
-    print(">>> RemoveGhost()!")
     if gravestone.ghost then
         gravestone.ghost.sg:GoToState("dissipate")
     end
 end
 
-local function OnSecondDig(mound, _)
+local function OnSecondDig(mound, worker)
     mound:DropBuriedTrinket()
     mound:SetBuriedState(false)
+    if worker.components.sanity then
+        worker.components.sanity:DoDelta(-TUNING.SANITY_SMALL)
+    end
 end
 
 local function DropBuriedTrinket(mound)
@@ -96,6 +98,9 @@ AddAction("BURY", "Bury", function(act)
 
     mound:SetBuriedState(true, offering.prefab)
     mound.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/mole/emerge")
+    if player.components.sanity ~= nil then
+        player.components.sanity:DoDelta(TUNING.SANITY_SMALL)
+    end
     return true
 end)
 
