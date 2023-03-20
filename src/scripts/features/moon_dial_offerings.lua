@@ -108,6 +108,9 @@ AddAction("MOONOFFERING", "Offer", function(act)
     end
 
     moondial:AddOffering(offering)
+    if player.components.sanity ~= nil then
+        player.components.sanity:DoDelta(TUNING.SANITY_TINY)
+    end
     return true
 end)
 
