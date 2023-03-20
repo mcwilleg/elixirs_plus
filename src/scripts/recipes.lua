@@ -72,8 +72,8 @@ AddCharacterRecipe("newelixir_lightning", {
 })
 
 local recipe_gravestone = AddCharacterRecipe("gravestone", {
-    Ingredient("marble", 5),
-    Ingredient("boneshard", 2),
+    Ingredient("marble", 4),
+    Ingredient("boneshard", 1),
     Ingredient("shovel", 1)
 }, TECH.NONE, {
     placer = "gravestone_placer",

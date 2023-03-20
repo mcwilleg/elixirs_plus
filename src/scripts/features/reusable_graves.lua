@@ -9,7 +9,7 @@ local function OnDestroy(gravestone, _)
         gravestone.mound:DropBuriedTrinket()
         gravestone.mound:Remove()
     end
-    local loot = { "marble", "marble", "marble", "boneshard" }
+    local loot = { "marble", "marble", "boneshard" }
     for _, v in ipairs(loot) do
         gravestone.components.lootdropper:SpawnLootPrefab(v)
     end
