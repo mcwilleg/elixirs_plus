@@ -46,6 +46,8 @@ modimport "scripts/features/moon_dial_offerings"
 
 modimport "scripts/features/reusable_graves"
 
+modimport "scripts/features/sisturn_updates"
+
 -- allow trinkets to be used on the moon dial
 -- allow trinkets to be buried in open mounds
 AddComponentAction("USEITEM", "inventoryitem", function(inst, doer, target, actions, _)
