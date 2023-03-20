@@ -63,7 +63,7 @@ local function AddOffering(moondial, offering)
     moondial.SoundEmitter:PlaySound("turnoftides/common/together/water/splash/medium")
 end
 
-AddAction("MOONOFFERING", "Make Offering", function(act)
+AddAction("MOONOFFERING", "Offer", function(act)
     -- guard clauses
     if not act.invobject or not act.doer.components.inventory or not act.target then
         return
@@ -94,7 +94,22 @@ AddAction("MOONOFFERING", "Make Offering", function(act)
     return true
 end)
 
+-- allow trinkets to be used on the moon dial via "MOONOFFERING" action
+AddComponentAction("USEITEM", "inventoryitem", function(inst, doer, target, actions, _)
+    if not target:HasTag("NOCLICK") then
+        return
+    end
+    if doer:HasTag("elixirbrewer") and target.prefab == "moondial" and inst:HasTag("trinket") and GetOfferingValue(target, inst) > 0 then
+        table.insert(actions, GLOBAL.ACTIONS.MOONOFFERING)
+    end
+end, "elixirs_plus")
+
+AddStategraphActionHandler("wilson", GLOBAL.ActionHandler(GLOBAL.ACTIONS.MOONOFFERING, "dolongaction"))
+AddStategraphActionHandler("wilson_client", GLOBAL.ActionHandler(GLOBAL.ACTIONS.MOONOFFERING, "dolongaction"))
+
 AddPrefabPostInit("moondial", function(inst)
+    if not GLOBAL.TheWorld.ismastersim then return end
+
     inst.pending_trinkets = 0
     inst.pending_ghostflowers = 0
 
@@ -121,16 +136,3 @@ AddPrefabPostInit("moondial", function(inst)
         end
     end
 end)
-
--- allow trinkets to be used on the moon dial via "MOONOFFERING" action
-AddComponentAction("USEITEM", "inventoryitem", function(inst, doer, target, actions, _)
-    if not target:HasTag("NOCLICK") then
-        return
-    end
-    if doer:HasTag("elixirbrewer") and target.prefab == "moondial" and inst:HasTag("trinket") and GetOfferingValue(target, inst) > 0 then
-        table.insert(actions, GLOBAL.ACTIONS.MOONOFFERING)
-    end
-end, "elixirs_plus")
-
-AddStategraphActionHandler("wilson", GLOBAL.ActionHandler(GLOBAL.ACTIONS.MOONOFFERING, "dolongaction"))
-AddStategraphActionHandler("wilson_client", GLOBAL.ActionHandler(GLOBAL.ACTIONS.MOONOFFERING, "dolongaction"))

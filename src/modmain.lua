@@ -8,8 +8,8 @@ Assets = {
 	Asset("ANIM", "anim/status_newelixir.zip"),
 
 	-- inventory images
-	Asset("IMAGE", "images/inventoryimages/gravestone_structure.tex"),
-	Asset("ATLAS", "images/inventoryimages/gravestone_structure.xml"),
+	Asset("IMAGE", "images/inventoryimages/gravestone.tex"),
+	Asset("ATLAS", "images/inventoryimages/gravestone.xml"),
 	Asset("IMAGE", "images/inventoryimages/newelixir_sanityaura.tex"),
 	Asset("ATLAS", "images/inventoryimages/newelixir_sanityaura.xml"),
 	Asset("IMAGE", "images/inventoryimages/newelixir_lightaura.tex"),
@@ -28,43 +28,21 @@ Assets = {
 
 PrefabFiles = {
 	"new_elixirs",
-	"gravestone_structure",
-	"mound_structure"
+	"gravestone_placer",
 }
 
-modimport("tuning.lua")
+modimport("scripts/tuning.lua")
+modimport("scripts/constants.lua")
 
+-- add tag to all trinket items
 for k = 1, GLOBAL.NUM_TRINKETS do
 	AddPrefabPostInit("trinket_"..tostring(k), function(inst)
 		inst:AddTag("trinket")
 	end)
 end
 
-modimport("features/moon_dial_offerings.lua")
-
-
-AddAction("BURY", "Bury", function(act)
-	if act.invobject ~= nil and act.doer.components.inventory ~= nil and act.target ~= nil then
-		local trinket = act.doer.components.inventory:RemoveItem(act.invobject)
-		if trinket ~= nil then
-			if act.target.components.gravecontainer ~= nil and act.target.components.gravecontainer:Bury(trinket, act.doer) then
-				return true
-			end
-			act.doer.components.inventory:GiveItem(trinket)
-		end
-	end
-end)
-
-AddComponentAction("USEITEM", "inventoryitem", function(inst, _, target, actions, _)
-	if inst:HasTag("trinket") and target:HasTag("customgrave") and not target:HasTag("NOCLICK") then
-		table.insert(actions, GLOBAL.ACTIONS.BURY)
-	end
-end, "elixirs_plus")
-
-AddStategraphActionHandler("wilson", GLOBAL.ActionHandler(GLOBAL.ACTIONS.BURY, "dolongaction"))
-AddStategraphActionHandler("wilson_client", GLOBAL.ActionHandler(GLOBAL.ACTIONS.BURY, "dolongaction"))
-
-
+modimport("scripts/features/moon_dial_offerings.lua")
+modimport("scripts/features/reusable_graves.lua")
 
 local function DoNightmareElixir(_, _, target)
 	target.AnimState:SetBuild("ghost_abigail_nightmare_build")
@@ -284,9 +262,8 @@ AddClassPostConstruct("widgets/statusdisplays", function(inst)
 	end
 end)
 
-modimport("recipes.lua")
-modimport("constants.lua")
+modimport("scripts/recipes.lua")
 
--- enter debug mode
+-- TODO remove debug mode
 GLOBAL.CHEATS_ENABLED = true
 GLOBAL.require('debugkeys')
