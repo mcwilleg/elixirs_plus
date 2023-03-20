@@ -31,8 +31,9 @@ PrefabFiles = {
 	"gravestone_placer",
 }
 
-modimport("scripts/tuning.lua")
-modimport("scripts/constants.lua")
+modimport "scripts/tuning"
+
+modimport "scripts/constants"
 
 -- add tag to all trinket items
 for k = 1, GLOBAL.NUM_TRINKETS do
@@ -41,8 +42,20 @@ for k = 1, GLOBAL.NUM_TRINKETS do
 	end)
 end
 
-modimport("scripts/features/moon_dial_offerings.lua")
-modimport("scripts/features/reusable_graves.lua")
+modimport "scripts/features/moon_dial_offerings"
+
+modimport "scripts/features/reusable_graves"
+
+-- allow trinkets to be used on the moon dial
+-- allow trinkets to be buried in open mounds
+AddComponentAction("USEITEM", "inventoryitem", function(inst, doer, target, actions, _)
+	if doer:HasTag("elixirbrewer") and target.prefab == "moondial" then
+		table.insert(actions, GLOBAL.ACTIONS.MOONOFFERING)
+	end
+	if doer:HasTag("ghostlyfriend") and inst:HasTag("trinket") and target.prefab == "mound" and target.AnimState:IsCurrentAnimation("dug") then
+		table.insert(actions, GLOBAL.ACTIONS.BURY)
+	end
+end)
 
 local function DoNightmareElixir(_, _, target)
 	target.AnimState:SetBuild("ghost_abigail_nightmare_build")
@@ -262,7 +275,7 @@ AddClassPostConstruct("widgets/statusdisplays", function(inst)
 	end
 end)
 
-modimport("scripts/recipes.lua")
+modimport "scripts/recipes"
 
 -- TODO remove debug mode
 GLOBAL.CHEATS_ENABLED = true

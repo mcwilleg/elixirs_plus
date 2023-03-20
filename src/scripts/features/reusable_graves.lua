@@ -99,13 +99,6 @@ AddAction("BURY", "Bury", function(act)
     return true
 end)
 
--- allow trinkets to be buried in open mounds
-AddComponentAction("USEITEM", "inventoryitem", function(inst, doer, target, actions, _)
-    if doer:HasTag("ghostlyfriend") and inst:HasTag("trinket") and target.prefab == "mound" and target.AnimState:IsCurrentAnimation("dug") then
-        table.insert(actions, GLOBAL.ACTIONS.BURY)
-    end
-end)
-
 AddStategraphActionHandler("wilson", GLOBAL.ActionHandler(GLOBAL.ACTIONS.BURY, "dolongaction"))
 AddStategraphActionHandler("wilson_client", GLOBAL.ActionHandler(GLOBAL.ACTIONS.BURY, "dolongaction"))
 
@@ -153,9 +146,6 @@ end)
 
 AddPrefabPostInit("mound", function(mound)
     mound.entity:AddSoundEmitter()
-
-    mound.entity:SetPristine()
-    if not GLOBAL.TheWorld.ismastersim then return mound end
 
     mound.DropBuriedTrinket = DropBuriedTrinket
     mound.SetBuriedState = SetBuriedState

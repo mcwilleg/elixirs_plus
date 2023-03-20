@@ -25,6 +25,7 @@ CHARACTERS.WENDY.ACTIONFAIL.MOONOFFERING = {
     NO_FULLMOON = "I will have to wait for a full moon.",
     NO_NIGHT = "I will have to wait for night.",
     GLASSED = "There is no water for an offering.",
+    NO_VALUE = "Maybe something more sentimental...",
 }
 
 CHARACTERS.WENDY.DESCRIBE.ABIGAIL.NIGHTMARE = "A-...Abigail...?"
@@ -38,7 +39,7 @@ CHARACTERS.WENDY.DESCRIBE.GRAVESTONE = "Asylum for a lost soul."
 --STRINGS.NAMES.MOUND_STRUCTURE = "Grave"
 CHARACTERS.WENDY.DESCRIBE.MOUND = {
     GENERIC = "Now we can help.",
-    DUG = "All it needs is an offering."
+    DUG = "All it needs is an offering.",
 }
 
 STRINGS.NAMES.NEWELIXIR_SANITYAURA = "Floral Incense"
