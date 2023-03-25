@@ -31,9 +31,8 @@ PrefabFiles = {
 	"gravestone_placer",
 }
 
-modimport "scripts/tuning"
-
-modimport "scripts/constants"
+modimport "scripts/tuning.lua"
+modimport "scripts/constants.lua"
 
 -- add tag to all trinket items
 for k = 1, GLOBAL.NUM_TRINKETS do
@@ -42,11 +41,11 @@ for k = 1, GLOBAL.NUM_TRINKETS do
 	end)
 end
 
-modimport "scripts/features/moon_dial_offerings"
-
-modimport "scripts/features/reusable_graves"
-
-modimport "scripts/features/sisturn_updates"
+modimport "scripts/features/moon_dial_offerings.lua"
+modimport "scripts/features/reusable_graves.lua"
+modimport "scripts/features/updates_sisturn.lua"
+modimport "scripts/features/updates_abigail.lua"
+modimport "scripts/features/updates_elixirs.lua"
 
 -- allow trinkets to be used on the moon dial
 -- allow trinkets to be buried in open mounds
@@ -65,12 +64,12 @@ end
 
 local function DoApplyElixir(inst, giver, target)
 	if target ~= nil and target.components.debuffable ~= nil then
-		local cur_buff = target.components.debuffable:GetDebuff("elixir_buff")
-		if cur_buff ~= nil then
-			if cur_buff.potion_tunings.NIGHTMARE_ELIXIR and not inst.potion_tunings.NIGHTMARE_ELIXIR and inst.prefab ~= "newelixir_cleanse" then
+		local current_buff = target.components.debuffable:GetDebuff("elixir_buff")
+		if current_buff ~= nil then
+			if current_buff.potion_tunings.NIGHTMARE_ELIXIR and not inst.potion_tunings.NIGHTMARE_ELIXIR and inst.prefab ~= "newelixir_cleanse" then
 				return false, "WRONG_ELIXIR"
 			end
-			if cur_buff.prefab ~= inst.buff_prefab then
+			if current_buff.prefab ~= inst.buff_prefab then
 				target.components.debuffable:RemoveDebuff("elixir_buff")
 			end
 		elseif inst.prefab == "newelixir_cleanse" then
@@ -173,79 +172,6 @@ AddPrefabPostInit("ghostlyelixir_slowregen", function(inst)
 	end
 end)
 
-AddPrefabPostInit("abigail", function(inst)
-	-- Add function to update angry eyes build when riled up
-	inst.UpdateEyes = function(abigail)
-		if abigail.is_defensive then
-			abigail.AnimState:ClearOverrideSymbol("ghost_eyes")
-		else
-			abigail.AnimState:OverrideSymbol("ghost_eyes", abigail.AnimState:GetBuild(), "angry_ghost_eyes")
-		end
-	end
-
-	-- Add function to turn nightmare abigail on and off
-	inst.SetNightmareAbigail = function(abigail, nightmare)
-		if nightmare then
-			abigail.AnimState:SetBuild("ghost_abigail_nightmare_build")
-			--[[abigail:AddComponent("sanityaura")
-			abigail.components.sanityaura.aura = -TUNING.SANITYAURA_LARGE
-			if abigail._playerlink ~= nil then
-				abigail._playerlink.components.sanity:RemoveSanityAuraImmunity("ghost")
-			end]]
-		else
-			abigail.AnimState:SetBuild("ghost_abigail_build")
-			--[[abigail:RemoveComponent("sanityaura")
-			if abigail._playerlink ~= nil then
-				abigail._playerlink.components.sanity:AddSanityAuraImmunity("ghost")
-			end]]
-		end
-		abigail:UpdateEyes()
-	end
-
-	-- Add function to get nightmare status
-	inst.IsNightmareAbigail = function(abigail)
-		return abigail.AnimState:GetBuild() == "ghost_abigail_nightmare_build"
-	end
-
-	-- New inspect dialogue for nightmare abigail
-	if inst.components.inspectable ~= nil then
-		local OldGetStatus = inst.components.inspectable.getstatus
-		inst.components.inspectable.getstatus = function(abigail, viewer)
-			if viewer.prefab == "wendy" and abigail.AnimState:GetBuild() == "ghost_abigail_nightmare_build" then
-				return "NIGHTMARE"
-			else
-				return OldGetStatus(abigail)
-			end
-		end
-	end
-
-	-- Let abigail use any build's angry eyes when riled up (normally hard-coded, no good)
-	local OldBecomeAggressive = inst.BecomeAggressive
-	inst.BecomeAggressive = function(abigail)
-		local current_build = abigail.AnimState:GetBuild()
-		OldBecomeAggressive(abigail)
-		abigail.AnimState:OverrideSymbol("ghost_eyes", current_build, "angry_ghost_eyes")
-	end
-
-	-- sanity bomb nearby players when abigail dies with a nightmare elixir equipped
-	inst:ListenForEvent("stopaura", function(abigail)
-		if abigail:IsNightmareAbigail() then
-			local x, y, z = abigail.Transform:GetWorldPosition()
-			local necessary_tags = { "player" }
-			local nearby_players = GLOBAL.TheSim:FindEntities(x, y, z, 15, necessary_tags)
-			for _, p in ipairs(nearby_players) do
-				if p.components.sanity ~= nil then
-					p.components.sanity:DoDelta(-TUNING.SANITY_HUGE)
-				end
-			end
-			local nightmare_burst = GLOBAL.SpawnPrefab("stalker_shield")
-			nightmare_burst.Transform:SetPosition(abigail:GetPosition():Get())
-			nightmare_burst.AnimState:SetScale(1.5, 1.5, 1.5)
-			abigail.SoundEmitter:PlaySound("dontstarve/common/deathpoof")
-		end
-	end)
-end)
-
 --[[
 local normal_ghost_prefabs = {
 	"ghost",
@@ -277,7 +203,7 @@ AddClassPostConstruct("widgets/statusdisplays", function(inst)
 	end
 end)
 
-modimport "scripts/recipes"
+modimport "scripts/recipes.lua"
 
 -- TODO remove debug mode
 GLOBAL.CHEATS_ENABLED = true

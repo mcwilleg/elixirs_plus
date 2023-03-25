@@ -22,7 +22,7 @@ AddCharacterRecipe("newelixir_lightaura", {
 })
 
 AddCharacterRecipe("newelixir_healthdamage", {
-    Ingredient("mosquitosack", 2),
+    Ingredient("mosquitosack", 1),
     Ingredient(GLOBAL.CHARACTER_INGREDIENT.HEALTH, 30),
     Ingredient("ghostflower", 3)
 }, TECH.NONE, {
@@ -71,7 +71,7 @@ AddCharacterRecipe("newelixir_lightning", {
     image = "newelixir_lightning.tex",
 })
 
-local recipe_gravestone = AddCharacterRecipe("gravestone", {
+AddCharacterRecipe("gravestone", {
     Ingredient("marble", 4),
     Ingredient("boneshard", 1),
     Ingredient("shovel", 1)
@@ -83,4 +83,4 @@ local recipe_gravestone = AddCharacterRecipe("gravestone", {
 })
 
 -- recipe sorting
-recipe_gravestone.sortkey = Recipes.sisturn.sortkey + 0.1
+Recipes.gravestone.sortkey = Recipes.sisturn.sortkey + 0.1

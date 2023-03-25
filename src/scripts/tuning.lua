@@ -47,18 +47,43 @@ TUNING.NEW_ELIXIRS = {
         TEMPERATURE = 85
     },
     HEALTHDAMAGE = {
-        HIGH_HEALTH = 0.8,
-        LOW_HEALTH = 0.1,
-        MIN_DAMAGE_MULT = 1.0,
-        MAX_DAMAGE_MULT = 2.5
+        HIGH_HEALTH = 1.0,
+        LOW_HEALTH = 0.2,
+        ABIGAIL = {
+            MIN_DAMAGE_MULT = 1.0,
+            MAX_DAMAGE_MULT = 1.5,
+            BONUS_DAMAGE_MULT = 1.5,
+        },
+        WENDY = {
+            MIN_DAMAGE_MULT = 1.4,
+            MAX_DAMAGE_MULT = 2.0,
+            BONUS_DAMAGE_MULT = 2.5,
+        },
     },
     CLEANSE = {
-        HEAL_MULT = 0.3,
+        HEALTH_GAIN = 0.3,
         SANITY_GAIN = TUNING.SANITY_LARGE
+    },
+    INSANITYDAMAGE = {
+        HIGH_HEALTH = 1.0,
+        LOW_HEALTH = 0.2,
+        ABIGAIL = {
+            MIN_DAMAGE_MULT = 1.0,
+            MAX_DAMAGE_MULT = 1.5,
+            BONUS_DAMAGE_MULT = 1.5,
+        },
+        WENDY = {
+            MIN_DAMAGE_MULT = 1.4,
+            MAX_DAMAGE_MULT = 2.0,
+            BONUS_DAMAGE_MULT = 2.5,
+        },
     },
     LIGHTNING = {
         SMITE_CHANCE = 0.1
-    }
+    },
+    ALL_NIGHTMARE_ELIXIRS = {
+        SANITYAURA = -TUNING.SANITYAURA_LARGE
+    },
 }
 
 -- TODO remove debug options

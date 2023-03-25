@@ -152,6 +152,9 @@ end)
 AddPrefabPostInit("mound", function(mound)
     mound.entity:AddSoundEmitter()
 
+    mound.entity:SetPristine()
+    if not GLOBAL.TheWorld.ismastersim then return mound end
+
     mound.DropBuriedTrinket = DropBuriedTrinket
     mound.SetBuriedState = SetBuriedState
 

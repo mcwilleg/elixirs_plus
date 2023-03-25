@@ -19,8 +19,10 @@ for _, ELIXIR in ipairs(NEW_ELIXIRS) do
 end
 
 -- Item names, recipe descriptions, and Wendy inspect dialogue
-CHARACTERS.WENDY.ACTIONFAIL.GIVE.WRONG_ELIXIR = "I can't apply it without cleansing her!"
-CHARACTERS.WENDY.ACTIONFAIL.GIVE.NO_ELIXIR = "It won't stick!"
+CHARACTERS.WENDY.ACTIONFAIL.GIVE = {
+    WRONG_ELIXIR = "I can't apply it without cleansing her!",
+    NO_ELIXIR = "It won't stick!",
+}
 CHARACTERS.WENDY.ACTIONFAIL.MOONOFFERING = {
     NO_FULLMOON = "I will have to wait for a full moon.",
     NO_NIGHT = "I will have to wait for night.",
@@ -29,14 +31,13 @@ CHARACTERS.WENDY.ACTIONFAIL.MOONOFFERING = {
 }
 
 CHARACTERS.WENDY.DESCRIBE.ABIGAIL.NIGHTMARE = "A-...Abigail...?"
-CHARACTERS.WENDY.DESCRIBE.MOONDIAL.RITUAL_STARTED = "I can see shapes in the water."
-CHARACTERS.WENDY.DESCRIBE.MOONDIAL.RITUAL_COMPLETE = "Abigail? Abigail!"
+CHARACTERS.WENDY.DESCRIBE.MOONDIAL = {
+    RITUAL_STARTED = "I can see shapes in the water.",
+    RITUAL_COMPLETE = "Abigail? Abigail!",
+}
 
---STRINGS.NAMES.GRAVESTONE_STRUCTURE = "Headstone"
 STRINGS.RECIPE_DESC.GRAVESTONE = "Revenant relocation."
-CHARACTERS.WENDY.DESCRIBE.GRAVESTONE = "Asylum for a lost soul."
 
---STRINGS.NAMES.MOUND_STRUCTURE = "Grave"
 CHARACTERS.WENDY.DESCRIBE.MOUND = {
     GENERIC = "Now we can help.",
     DUG = "All it needs is an offering.",
